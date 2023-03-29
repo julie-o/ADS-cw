@@ -71,33 +71,21 @@ public class CQMinimizer {
             change = false;
             for (Atom atom: query.getBody()){
                 //System.out.println("------------------ Atom " + atom + "------------------");
-                //choose an atom α ∈ body such that the variables x1,…,xk appear in body ∖ {α}
-                if (inBody(query,(RelationalAtom) atom)){
-                    //if there is a query homomorphism from Q(x1,…,xk) :- body to Q(x1,…,xk) :- body ∖ {α}
-                    if (homomorphism(query,(RelationalAtom) atom)){
-                        System.out.println("Homomorphism found!");
-                        //then body := body ∖ {α}
-                        query.getBody().remove(atom);
-                        change = true;
-                        break;
-                    }
+                //if there is a query homomorphism from Q(x1,…,xk) :- body to Q(x1,…,xk) :- body ∖ {α}
+                if (homomorphism(query,(RelationalAtom) atom)){
+                    System.out.println("Homomorphism found!");
+                    //then body := body ∖ {α}
+                    query.getBody().remove(atom);
+                    change = true;
+                    break;
                 }
             }
         }
     }
 
-    public static boolean inBody(Query query, RelationalAtom atom) {
-        //TODO
-        return true;
-    }
-
     public static boolean homomorphism(Query query, RelationalAtom atom) {
         List<Atom> removeAtom = new ArrayList<>(query.getBody());
         removeAtom.remove(atom);
-
-        //System.out.println("homomorphism: Query = " + query);
-        //System.out.println("homomorphism: removeAtom = " + removeAtom);
-
 
         List<Term> mapTo = new ArrayList<>();
 
@@ -191,7 +179,6 @@ public class CQMinimizer {
             }
         }
 
-        //System.out.println("Equal? A:" + queryA + ", B:"+ queryB + ", true");
         return true;
     }
 

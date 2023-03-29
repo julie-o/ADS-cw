@@ -15,7 +15,12 @@ public abstract class Operator {
         try {
             Tuple nextTuple = getNextTuple();
             while (nextTuple != null) {
-                System.out.println(nextTuple);
+                if (WriteCSV.getWriteCSV()!=null){
+                    WriteCSV writer = WriteCSV.getWriteCSV();
+                    writer.write(nextTuple);
+                } else {
+                    System.out.print(nextTuple);
+                }
                 nextTuple = getNextTuple();
             }
         } catch (IOException e) {

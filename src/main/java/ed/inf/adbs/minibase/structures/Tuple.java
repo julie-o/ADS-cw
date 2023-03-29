@@ -25,7 +25,7 @@ public class Tuple {
         for (Constant c:fields){
             s = s + c.toString() + ",";
         }
-        return s.substring(0, s.length() - 1); // drops last comma
+        return s.substring(0, s.length() - 1) + "\n"; // drop last comma and adds a newline
     }
 
     @Override

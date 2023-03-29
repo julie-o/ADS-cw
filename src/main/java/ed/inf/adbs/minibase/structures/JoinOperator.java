@@ -9,7 +9,7 @@ import java.util.List;
 public class JoinOperator extends Operator {
     private Operator childLeft;
     private Operator childRight;
-    private List<ComparisonAtom> comparisonAtomList;
+    private final List<ComparisonAtom> comparisonAtomList;
     private ComparisonAtom compareAtom;
     private Variable compareVar;
 

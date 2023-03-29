@@ -5,6 +5,7 @@ import ed.inf.adbs.minibase.base.Query;
 import ed.inf.adbs.minibase.base.Head;
 import ed.inf.adbs.minibase.parser.QueryParser;
 import ed.inf.adbs.minibase.structures.QueryPlan;
+import ed.inf.adbs.minibase.structures.WriteCSV;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -35,11 +36,12 @@ public class Minibase {
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) {
         try {
             Query query = QueryParser.parse(Paths.get(inputFile));
-
             QueryPlan plan = QueryPlan.getQueryPlan(databaseDir,query);
-            plan.getRoot().dump();
-            //TODO write to file
+            WriteCSV writer = WriteCSV.getWriteCSV(outputFile);
 
+            plan.getRoot().dump();
+
+            writer.closeWriter();
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
