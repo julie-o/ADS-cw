@@ -14,11 +14,11 @@ import java.util.Objects;
  */
 public class SelectOperator extends Operator{
     /** Child operator */
-    private final Operator child;
+    private Operator child;
     /** List of condition atoms to select by */
     private final List<ComparisonAtom> comparisonAtomList;
     /** Base relational atom */
-    private final RelationalAtom atom;
+    private RelationalAtom atom;
 
     /**
      * Constructor for the SelectOperator class.
@@ -167,5 +167,15 @@ public class SelectOperator extends Operator{
      */
     public RelationalAtom getAtom(){
         return this.atom;
+    }
+
+
+    /**
+     * Method for setting base relational atom
+     *
+     * @param atom base relational atom
+     */
+    public void setAtom(RelationalAtom atom) {
+        this.atom = atom;
     }
 }

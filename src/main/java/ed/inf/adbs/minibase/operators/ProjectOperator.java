@@ -113,4 +113,5 @@ public class ProjectOperator extends Operator {
     public RelationalAtom getAtom(){
         return this.atom;
     }
+
 }

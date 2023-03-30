@@ -189,7 +189,25 @@ public class JoinOperator extends Operator {
     }
 
     /**
+     * Getter for the left child operation
+     *
+     * @return left child operation
+     */
+    public Operator getChildLeft() {
+        return childLeft;
+    }
+
+    /**
      * Getter for the right child operation
+     *
+     * @return right child operation
+     */
+    public Operator getChildRight() {
+        return childRight;
+    }
+
+    /**
+     * Setter for the right child operation
      *
      * @param childRight right child operation
      */
@@ -198,7 +216,7 @@ public class JoinOperator extends Operator {
     }
 
     /**
-     * Getter for the left child operation
+     * Setter for the left child operation
      *
      * @param childLeft left child operation
      */

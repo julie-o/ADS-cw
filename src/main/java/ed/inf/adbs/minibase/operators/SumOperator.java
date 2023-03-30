@@ -158,7 +158,7 @@ public class SumOperator extends Operator {
     private int getValue(Term term, Tuple tuple){
         if (term instanceof Variable) {
             int index = atom.getTerms().indexOf(term);
-            if (index>0){
+            if (index>=0){
                 if (!(tuple.getFields().get(index) instanceof IntegerConstant)) throw new IllegalArgumentException("Field is not an integer");
                 IntegerConstant i = (IntegerConstant) tuple.getFields().get(index);
                 return i.getValue();
@@ -167,7 +167,7 @@ public class SumOperator extends Operator {
             return ((IntegerConstant) term).getValue();
         }
 
-        throw new IllegalArgumentException("Term not in tuple");
+        throw new IllegalArgumentException("Term not in tuple: term=" + term + ", tuple=" + tuple);
     }
 
     /**
@@ -188,4 +188,5 @@ public class SumOperator extends Operator {
     public RelationalAtom getAtom() {
         return atom;
     }
+
 }

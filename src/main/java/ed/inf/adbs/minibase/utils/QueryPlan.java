@@ -19,37 +19,34 @@ public class QueryPlan {
     private Query query;
 
     /**
+     * Method for initialising the query plan and getting the class instance.
      *
-     * @param databaseDir
-     * @param query
-     * @return
+     * @param databaseDir path to database directory
+     * @param query query to evaluate
+     * @return class instance
      */
     public static QueryPlan getQueryPlan(String databaseDir, Query query) {
-        DatabaseCatalog catalog = DatabaseCatalog.getCatalog(databaseDir); // never used, but initialises the catalog with the directory for use later
-        if (plan != null) {
-            return plan;
-        } else {
+        if (plan == null) {
+            // Catalog is not used in query plan, but initialised for later use
+            DatabaseCatalog.getCatalog(databaseDir);
+
             plan = new QueryPlan();
             plan.query = query;
-            try {
-                buildTree(query);
-            } catch (FileNotFoundException e){
-                e.printStackTrace();
-            }
-            return plan;
+            buildTree();
         }
+        return plan;
     }
 
     /**
-     *
-     * @param query
-     * @throws FileNotFoundException
+     * Method for the main logic behind building the tree of operations that the
+     * query plan consists of.
      */
-    private static void buildTree(Query query) throws FileNotFoundException {
+    private static void buildTree() {
         List<ComparisonAtom> comparisonAtomList = new ArrayList<>();
         List<Operator> operators = new ArrayList<>();
 
-        for (Atom atom:query.getBody()){
+        // Iterate through all atoms
+        for (Atom atom:plan.query.getBody()){
             if (atom instanceof RelationalAtom){
                 boolean hasConstant = false;
                 for (Term t:((RelationalAtom) atom).getTerms()){
@@ -59,13 +56,19 @@ public class QueryPlan {
                     }
                 }
 
-                if (hasConstant){
-                    ScanOperator child = new ScanOperator(((RelationalAtom) atom).getName(),(RelationalAtom) atom);
-                    operators.add(new SelectOperator(child, new ArrayList<>(), child.getAtom()));
-                } else {
-                    operators.add(new ScanOperator(((RelationalAtom) atom).getName(),(RelationalAtom) atom));
+                // ScanOperator may return FileNotFoundException
+                try {
+                    // create ScanOperations as the leaf operations
+                    // if the atom has a constant, create a new SelectOperation as a parent operation
+                    if (hasConstant){
+                        ScanOperator child = new ScanOperator(((RelationalAtom) atom).getName(),(RelationalAtom) atom);
+                        operators.add(new SelectOperator(child, new ArrayList<>(), child.getAtom()));
+                    } else {
+                        operators.add(new ScanOperator(((RelationalAtom) atom).getName(),(RelationalAtom) atom));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
-
             } else if (atom instanceof ComparisonAtom){
                 comparisonAtomList.add((ComparisonAtom) atom);
             } else {
@@ -73,9 +76,9 @@ public class QueryPlan {
             }
         }
 
+        // Split ComparisonAtoms into selection conditions and join conditions
         List<ComparisonAtom> selectionComparators = new ArrayList<>();
         List<ComparisonAtom> joinComparators = new ArrayList<>();
-
         for (ComparisonAtom comp:comparisonAtomList) {
             if (isJoinComparator(comp,operators)){
                 joinComparators.add(comp);
@@ -84,6 +87,7 @@ public class QueryPlan {
             }
         }
 
+        // if there are selection conditions, create SelectOperations as parents operations
         if (selectionComparators.size()!=0){
             List<Operator> temp = new ArrayList<>();
             for (Operator operator : operators) {
@@ -92,107 +96,90 @@ public class QueryPlan {
             operators = temp;
         }
 
-        /*
-        List<Variable> neededVariables = new ArrayList<>(query.getHead().getVariables());
-        for (ComparisonAtom comp:comparisonAtomList){
-            if (comp.getTerm1() instanceof Variable
-                    && !neededVariables.contains((Variable) comp.getTerm1()))
-                    neededVariables.add((Variable) comp.getTerm1());
-            if (comp.getTerm2() instanceof Variable
-                    && !neededVariables.contains((Variable) comp.getTerm2()))
-                    neededVariables.add((Variable) comp.getTerm2());
-        }
-
-         */
-
         plan.root = operators.get(0);
+
+        // if there is more than one relation create joins
         if (operators.size()>1){
             operators.remove(0);
-            plan.root = createJoins(operators,plan.root,joinComparators,query.getHead().getVariables());
+            plan.root = createJoins(operators,plan.root,joinComparators);
         }
 
-        SumAggregate agg = query.getHead().getSumAggregate();
+        SumAggregate agg = plan.query.getHead().getSumAggregate();
+
+        // only push projection when there is no sum aggregate
+        if (agg == null){
+            plan.root = pushProjection(plan.root, plan.query.getHead().getVariables());
+        }
+
+        // if the query has an aggregation the root is a SumOperator, otherwise a ProjectOperator
         if (agg != null){
-            plan.root = new SumOperator(plan.root, agg,plan.root.getAtom(),query.getHead().getVariables());
+            plan.root = new SumOperator(plan.root, agg, plan.root.getAtom(), plan.query.getHead().getVariables());
         } else {
-            plan.root = new ProjectOperator(plan.root, query.getHead().getVariables(), (plan.root).getAtom());
+            plan.root = new ProjectOperator(plan.root, plan.query.getHead().getVariables(), (plan.root).getAtom());
         }
     }
 
     /**
+     * Method for recursively pushing down projection through the join tree.
      *
-     * @param comp
-     * @param operators
-     * @return
+     * @param root root of the tree
+     * @param variables variables that must be kept
+     * @return returns the root operator
+     */
+    private static Operator pushProjection(Operator root, List<Variable> variables){
+        if (root instanceof JoinOperator){
+            List<Variable> neededVariables = new ArrayList<>(variables);
+
+            JoinOperator joinRoot = (JoinOperator) root;
+
+            // Add variables from join condition
+            if (joinRoot.getCompareAtom()!=null){
+                if (!neededVariables.contains((Variable) joinRoot.getCompareAtom().getTerm1()))
+                    neededVariables.add((Variable) joinRoot.getCompareAtom().getTerm1());
+                if (!neededVariables.contains((Variable) joinRoot.getCompareAtom().getTerm2()))
+                    neededVariables.add((Variable) joinRoot.getCompareAtom().getTerm2());
+            } else if (joinRoot.getCompareVar()!=null) {
+                if (!neededVariables.contains(joinRoot.getCompareVar())) neededVariables.add(joinRoot.getCompareVar());
+            }
+
+            // recursively
+            Operator pushProjectionLeft = new ProjectOperator(
+                    pushProjection(joinRoot.getChildLeft(),neededVariables),
+                    neededVariables,joinRoot.getChildLeft().getAtom());
+            Operator pushProjectionRight = new ProjectOperator(
+                    pushProjection(joinRoot.getChildRight(),neededVariables),
+                    neededVariables,joinRoot.getChildRight().getAtom());
+
+            joinRoot.setChildLeft(pushProjectionLeft);
+            joinRoot.setChildRight(pushProjectionRight);
+            joinRoot.reloadIndex();
+
+            return joinRoot;
+        } else {
+            return root;
+        }
+    }
+
+    /**
+     * Checks whether the given comparison atom is a join condition. Returns false
+     * if one of the terms is a constant OR both of the terms exist in one relation.
+     *
+     * @param comp comparison atom to test
+     * @param operators all operators for which it could be a join condition
+     * @return returns true if the comparison atom is a join condition
      */
     private static boolean isJoinComparator(ComparisonAtom comp,List<Operator> operators){
-        int variables = 0;
-        if (comp.getTerm1() instanceof Variable) variables++;
-        if (comp.getTerm2() instanceof Variable) variables++;
+        if (comp.getTerm1() instanceof Constant) return false;
+        if (comp.getTerm2() instanceof Constant) return false;
 
-        if (variables<2){
-            return false;
-        } else {
-            for (Operator op:operators){
-                boolean term1 = op.getAtom().getTerms().contains(comp.getTerm1());
-                boolean term2 = op.getAtom().getTerms().contains(comp.getTerm2());
-                if (term1 && term2){
-                    return false;
-                }
+        for (Operator op:operators){
+            boolean term1 = op.getAtom().getTerms().contains(comp.getTerm1());
+            boolean term2 = op.getAtom().getTerms().contains(comp.getTerm2());
+            if (term1 && term2){
+                return false;
             }
-            return true;
         }
-    }
-
-    /**
-     * Method for creating the join tree. Joins relational atoms from left to right. The leftmost
-     * child operation should be passed into the first call, then the method creates the rest of
-     * the joins recursively. The method pushes projection down the join tree where possible.
-     *
-     * @param atoms all unjoined atoms in query
-     * @param leftChild left child operation for the join
-     * @param comp list of join conditions
-     * @param variables list of variables needed either for output or for join conditions
-     * @return returns a join operator
-     */
-    private static JoinOperator createJoins(List<Operator> atoms, Operator leftChild, List<ComparisonAtom> comp,List<Variable> variables){
-        Operator rightChild = atoms.get(0);
-        JoinOperator newJoin = new JoinOperator(leftChild, rightChild, comp);
-
-        List<Variable> neededVariables = new ArrayList<>(variables);
-
-        // Push projection down the join tree if possible (to both child nodes)
-        SumAggregate agg = plan.query.getHead().getSumAggregate();
-        if (agg==null && newJoin.getCompareAtom()!=null){
-            if (!neededVariables.contains((Variable) newJoin.getCompareAtom().getTerm1()))
-                    neededVariables.add((Variable) newJoin.getCompareAtom().getTerm1());
-            if (!neededVariables.contains((Variable) newJoin.getCompareAtom().getTerm2()))
-                neededVariables.add((Variable) newJoin.getCompareAtom().getTerm2());
-
-            Operator pushProjectionLeft = new ProjectOperator(leftChild, neededVariables,leftChild.getAtom());
-            newJoin.setChildLeft(pushProjectionLeft);
-            Operator pushProjectionRight = new ProjectOperator(rightChild, neededVariables,rightChild.getAtom());
-            newJoin.setChildRight(pushProjectionRight);
-
-            newJoin.reloadIndex();
-        } else if (agg==null && newJoin.getCompareVar()!=null) {
-            if (!neededVariables.contains(newJoin.getCompareVar())) neededVariables.add(newJoin.getCompareVar());
-
-            Operator pushProjectionLeft = new ProjectOperator(leftChild, neededVariables,leftChild.getAtom());
-            newJoin.setChildLeft(pushProjectionLeft);
-            Operator pushProjectionRight = new ProjectOperator(rightChild, neededVariables,rightChild.getAtom());
-            newJoin.setChildRight(pushProjectionRight);
-
-            newJoin.reloadIndex();
-        }
-
-        // call method recursively if newJoin is not the last join
-        if (atoms.size()==1){
-            return newJoin;
-        } else {
-            atoms.remove(0);
-            return createJoins(atoms, newJoin, comp, variables);
-        }
+        return true;
     }
 
     /**
@@ -202,5 +189,28 @@ public class QueryPlan {
      */
     public static Operator getRoot(){
         return plan.root;
+    }
+
+    /**
+     * Method for creating the join tree. Joins relational atoms from left to right. The leftmost
+     * child operation should be passed into the first call, then the method creates the rest of
+     * the joins recursively.
+     *
+     * @param atoms all unjoined atoms in query
+     * @param leftChild left child operation for the join
+     * @param comp list of join conditions
+     * @return returns a join operator
+     */
+    private static JoinOperator createJoins(List<Operator> atoms, Operator leftChild, List<ComparisonAtom> comp){
+        Operator rightChild = atoms.get(0);
+        JoinOperator newJoin = new JoinOperator(leftChild, rightChild, comp);
+
+        // call method recursively if newJoin is not the last join
+        if (atoms.size()==1){
+            return newJoin;
+        } else {
+            atoms.remove(0);
+            return createJoins(atoms, newJoin, comp);
+        }
     }
 }
