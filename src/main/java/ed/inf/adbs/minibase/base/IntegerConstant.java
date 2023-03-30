@@ -1,5 +1,7 @@
 package ed.inf.adbs.minibase.base;
 
+import java.util.Objects;
+
 public class IntegerConstant extends Constant implements Comparable<IntegerConstant> {
     private Integer value;
 
@@ -23,10 +25,10 @@ public class IntegerConstant extends Constant implements Comparable<IntegerConst
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof IntegerConstant)) return false;
-
-        return (this.getValue()).equals(((IntegerConstant) o).getValue());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IntegerConstant that = (IntegerConstant) o;
+        return Objects.equals(value, that.value);
     }
 
     @Override

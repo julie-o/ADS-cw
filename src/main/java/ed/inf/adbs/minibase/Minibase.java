@@ -4,12 +4,14 @@ import ed.inf.adbs.minibase.base.Atom;
 import ed.inf.adbs.minibase.base.Query;
 import ed.inf.adbs.minibase.base.Head;
 import ed.inf.adbs.minibase.parser.QueryParser;
-import ed.inf.adbs.minibase.structures.QueryPlan;
-import ed.inf.adbs.minibase.structures.WriteCSV;
+import ed.inf.adbs.minibase.utils.QueryPlan;
+import ed.inf.adbs.minibase.utils.WriteCSV;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+
+
 
 /**
  * In-memory database system
@@ -29,10 +31,17 @@ public class Minibase {
         String outputFile = args[2];
 
         evaluateCQ(databaseDir, inputFile, outputFile);
-
-//        parsingExample(inputFile);
     }
 
+    /**
+     * Method for starting the query evaluation. First parses the query and initialises
+     * the query planner and file writer, and then peforms the query by calling dump()
+     * to print the results to file.
+     *
+     * @param databaseDir path to database directory
+     * @param inputFile path to input file
+     * @param outputFile path to output file
+     */
     public static void evaluateCQ(String databaseDir, String inputFile, String outputFile) {
         try {
             Query query = QueryParser.parse(Paths.get(inputFile));
@@ -53,7 +62,6 @@ public class Minibase {
      * Reads CQ from a file and prints it to screen, then extracts Head and Body
      * from the query and prints them to screen.
      */
-
     public static void parsingExample(String filename) {
         try {
             Query query = QueryParser.parse(Paths.get(filename));

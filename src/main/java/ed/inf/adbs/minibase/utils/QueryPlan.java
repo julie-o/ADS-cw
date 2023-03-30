@@ -1,7 +1,8 @@
-package ed.inf.adbs.minibase.structures;
+package ed.inf.adbs.minibase.utils;
 
 
 import ed.inf.adbs.minibase.base.*;
+import ed.inf.adbs.minibase.operators.*;
 
 import java.io.FileNotFoundException;
 import java.util.*;
