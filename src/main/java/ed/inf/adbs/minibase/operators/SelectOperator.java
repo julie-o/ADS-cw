@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Class for select operations.
+ * Class for select operations. Selection checks both that all of the explicit conditions
+ * are met, and that any constants in the base relation matches.
  */
 public class SelectOperator extends Operator{
     /** Child operator */
@@ -21,7 +22,8 @@ public class SelectOperator extends Operator{
     private RelationalAtom atom;
 
     /**
-     * Constructor for the SelectOperator class.
+     * Constructor for the SelectOperator class. Uses removeIrrelevantComparisons() to parse
+     * the input conditions so that only conditions relevant to the base relation remain.
      *
      * @param child child operation
      * @param comparisonAtomList list of condition atoms to select by

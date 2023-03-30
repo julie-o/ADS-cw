@@ -8,7 +8,11 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
- * Class for producing a query plan.
+ * Class for producing a query plan. getQueryPlan() is used to initialise the query planner.
+ * The function calls the private method buildTree, which builds the tree of operations.
+ * The only public method (other than getQueryPlan() ) is getRoot(), which returns the root of
+ * the query plan. dump() or getNextTuple() repeatedly, can then be called on the root to
+ * evaluate the query.
  */
 public class QueryPlan {
     /** Class instance */

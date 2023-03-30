@@ -22,7 +22,9 @@ public class ProjectOperator extends Operator {
     private RelationalAtom atom;
 
     /**
-     * Constructor for the ProjectOperator class.
+     * Constructor for the ProjectOperator class. The constructor calls outputIndexes()
+     * to first set the indexes that are used to get values from tuples. Then it calls
+     * updateAtom() to store the projected base relation.
      *
      * @param child child operator
      * @param outputVars list of variables that should be in the output

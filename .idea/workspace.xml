@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="2a618e89-14b1-4418-83ec-575725cb5bbb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/JoinOperator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/JoinOperator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/ProjectOperator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/ProjectOperator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/ScanOperator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/ScanOperator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/SelectOperator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/SelectOperator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/SumOperator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/operators/SumOperator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/utils/QueryPlan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ed/inf/adbs/minibase/utils/QueryPlan.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

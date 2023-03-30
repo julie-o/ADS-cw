@@ -10,6 +10,10 @@ import java.util.List;
 
 /**
  * Class for join operations.
+ *
+ * The constructor calls parseComparisons to find the join condition, and getNextTuple() uses
+ * match() to check whether the condition holds. If parseComparisons was unable to find a
+ * condition, match() always returns true (cartesian product).
  */
 public class JoinOperator extends Operator {
     /** Left child operator */

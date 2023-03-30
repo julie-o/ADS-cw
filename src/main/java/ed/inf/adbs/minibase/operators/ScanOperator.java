@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Class for scan operations.
+ * Class for scan operations. The constructor (or reset) sets the reader to the start
+ * of the file. Then as getNextTuple() is called parse() is used to parse a line from file.
  */
 public class ScanOperator extends Operator {
     /** Reader for reading the database files line by line */
