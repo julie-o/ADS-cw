@@ -39,13 +39,12 @@ public class WriteCSV {
     }
 
     /**
-     * Method for getting an instance of the class without passing in the
-     * output file. Requires the class instance to have been instantiated.
+     * Method for getting an instance of the class without passing in the output file.
+     * May return null.
      *
      * @return returns the class instance
      */
     public static WriteCSV getWriteCSV() {
-        if (writeCSV==null) throw new NullPointerException("WriteCSV instance has not been instantiated.");
         return writeCSV;
     }
 
