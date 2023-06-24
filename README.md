@@ -1,4 +1,4 @@
-# Coursework - Advanced Database Systems INFR11217
+# Coursework Advanced Databases
 
 The code in _/src/main/java/ed/inf/adbs/minibase_ is produced by me, with the exception of the files in _base/_ and _parser/_ which contain code provided by the coursework template.
 
