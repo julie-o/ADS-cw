@@ -1,9 +1,10 @@
 # Coursework - Advanced Database Systems INFR11217
 
+The code in _/src/main/java/ed/inf/adbs/minibase_ is produced by me, with the exception of the files in _base/_ and _parser/_ which contain code provided by the coursework template.
+
 <hr>
 
-<p>In this assignment, you will implement the minimization procedure for conjunctive queries
-and a lightweight database engine for evaluating queries called Minibase.</p>
+<p>In this assignment, you will implement the minimization procedure for conjunctive queries and a lightweight database engine for evaluating queries called Minibase.</p>
 
 <p>The goals of this assignment are threefold:</p>
 <ol><li>to understand the minimization procedure for conjunctive queries,</li>
